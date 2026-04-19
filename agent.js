@@ -1,5 +1,9 @@
-async function callLPITool(toolName, input) {
-  return `Response from ${toolName} for ${input}`;
+async function get_insights(topic) {
+  return `Insights generated for ${topic}`;
+}
+
+async function query_knowledge(topic) {
+  return `Knowledge retrieved for ${topic}`;
 }
 
 async function careerAgent(input) {
@@ -10,18 +14,24 @@ async function careerAgent(input) {
     };
   }
 
+  if (typeof input.interest !== "string") {
+    return {
+      error: "Interest must be text."
+    };
+  }
+
   try {
-    const insights = await callLPITool("get_insights", input.interest);
-    const knowledge = await callLPITool("query_knowledge", input.interest);
+    const insights = await get_insights(input.interest);
+    const knowledge = await query_knowledge(input.interest);
 
     let recommendation = `Based on your interest in ${input.interest}, `;
 
     if (input.budget === "low") {
       recommendation +=
-        "you should consider affordable options like Germany or India. ";
+        "you should consider affordable options like Germany or India.";
     } else {
       recommendation +=
-        "you can explore countries like USA, UK, or Canada. ";
+        "you can explore countries like USA, UK, or Canada.";
     }
 
     return {
@@ -29,15 +39,16 @@ async function careerAgent(input) {
       insights,
       knowledge,
       reasoning: [
-        "Insight tool analyzed the student's academic interest.",
-        "Knowledge tool provided relevant study destination information.",
-        "Budget preference was used to refine recommendations."
+        "get_insights analyzed the student's academic interest.",
+        "query_knowledge provided destination information.",
+        "Budget preference refined final recommendation."
       ],
       sources: ["get_insights", "query_knowledge"]
     };
   } catch (error) {
+    console.error(error);
     return {
-      error: "Something went wrong while generating recommendation."
+      error: "Tool request failed."
     };
   }
 }
